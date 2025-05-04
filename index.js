@@ -1,24 +1,28 @@
-const express= require('express');
-const bodyParser = require('body-parser');
+// Core Modules
+const path = require("path");
+
+// External Module
+const express = require("express");
+const bodyParser = require("body-parser");
+
+// Local Module
+const { hostRouter } = require("./routers/hostRouter");
+const storeRouter = require("./routers/storeRouter");
+const rootDir = require("./util/path-util");
+const errorController = require('./controllers/errorController');
+
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-app.use(express.static('public'));
 
-app.use(bodyParser.urlencoded({ extended: true })); 
-app.post('/',(req,res,next)=>{
-    console.log(req.body);
-    
-    console.log('data received')
-    next();
-})
+app.use(express.static(path.join(rootDir, "public")));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(storeRouter);
+app.use("/host", hostRouter);
 
-app.get('/',(req,res)=>{
-    res.render('index');
-})
-app.get('/homeadded',(req,res)=>{
-    res.render('add-home');
-})
-app.listen(3000, () => {
-    console.log('your serveris http://localhost:3000');
+app.use(errorController.get404);
+
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(`Server running at: http://localhost:${PORT}`);
 });
